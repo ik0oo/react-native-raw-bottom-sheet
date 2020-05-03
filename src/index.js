@@ -1,23 +1,9 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import {
-  View,
-  KeyboardAvoidingView,
-  Modal,
-  TouchableOpacity,
-  Animated,
-  PanResponder,
-  Platform
-} from "react-native";
-import styles from "./style";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { View, KeyboardAvoidingView, Modal, TouchableOpacity, Animated, PanResponder, Platform } from 'react-native';
+import styles from './style';
 
-const SUPPORTED_ORIENTATIONS = [
-  "portrait",
-  "portrait-upside-down",
-  "landscape",
-  "landscape-left",
-  "landscape-right"
-];
+const SUPPORTED_ORIENTATIONS = ['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right'];
 
 class RBSheet extends Component {
   constructor(props) {
@@ -25,7 +11,7 @@ class RBSheet extends Component {
     this.state = {
       modalVisible: false,
       animatedHeight: new Animated.Value(0),
-      pan: new Animated.ValueXY()
+      pan: new Animated.ValueXY(),
     };
 
     this.createPanResponder(props);
@@ -36,23 +22,25 @@ class RBSheet extends Component {
     const { animatedHeight, pan } = this.state;
     if (visible) {
       this.setState({ modalVisible: visible });
-      if (typeof onOpen === "function") onOpen(props);
+      if (typeof onOpen === 'function') onOpen(props);
       Animated.timing(animatedHeight, {
+        useNativeDriver: false,
         toValue: height,
-        duration
+        duration,
       }).start();
     } else {
       Animated.timing(animatedHeight, {
+        useNativeDriver: false,
         toValue: minClosingHeight,
-        duration
+        duration,
       }).start(() => {
         pan.setValue({ x: 0, y: 0 });
         this.setState({
           modalVisible: visible,
-          animatedHeight: new Animated.Value(0)
+          animatedHeight: new Animated.Value(0),
         });
 
-        if (typeof onClose === "function") onClose(props);
+        if (typeof onClose === 'function') onClose(props);
       });
     }
   }
@@ -64,16 +52,16 @@ class RBSheet extends Component {
       onStartShouldSetPanResponder: () => closeOnDragDown,
       onPanResponderMove: (e, gestureState) => {
         if (gestureState.dy > 0) {
-          Animated.event([null, { dy: pan.y }])(e, gestureState);
+          Animated.event([null, { dy: pan.y }], { useNativeDriver: false })(e, gestureState);
         }
       },
       onPanResponderRelease: (e, gestureState) => {
         if (height / 4 - gestureState.dy < 0) {
           this.setModalVisible(false);
         } else {
-          Animated.spring(pan, { toValue: { x: 0, y: 0 } }).start();
+          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
         }
-      }
+      },
     });
   }
 
@@ -93,11 +81,11 @@ class RBSheet extends Component {
       closeOnPressBack,
       children,
       customStyles,
-      keyboardAvoidingViewEnabled
+      keyboardAvoidingViewEnabled,
     } = this.props;
     const { animatedHeight, pan, modalVisible } = this.state;
     const panStyle = {
-      transform: pan.getTranslateTransform()
+      transform: pan.getTranslateTransform(),
     };
 
     return (
@@ -138,7 +126,7 @@ class RBSheet extends Component {
 }
 
 RBSheet.propTypes = {
-  animationType: PropTypes.oneOf(["none", "slide", "fade"]),
+  animationType: PropTypes.oneOf(['none', 'slide', 'fade']),
   height: PropTypes.number,
   minClosingHeight: PropTypes.number,
   duration: PropTypes.number,
@@ -149,22 +137,22 @@ RBSheet.propTypes = {
   customStyles: PropTypes.objectOf(PropTypes.object),
   onClose: PropTypes.func,
   onOpen: PropTypes.func,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 RBSheet.defaultProps = {
-  animationType: "none",
+  animationType: 'none',
   height: 260,
   minClosingHeight: 0,
   duration: 300,
   closeOnDragDown: false,
   closeOnPressMask: true,
   closeOnPressBack: true,
-  keyboardAvoidingViewEnabled: Platform.OS === "ios",
+  keyboardAvoidingViewEnabled: Platform.OS === 'ios',
   customStyles: {},
   onClose: null,
   onOpen: null,
-  children: <View />
+  children: <View />,
 };
 
 export default RBSheet;
